@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/assets/ekilie_logo.jpeg" type="image/x-icon">
+  <title>No Internet</title>
+  <style>
+    :root {
+      --body-bg-color: #0c0d0e;
+      --card-bg-color: #151718;
+      --border-color: #313437;
+      --title-color: #818a84;
+      --text-white: #fff;
+      --btn-bg: #2d3b30;
+      --btn-text: #e0ece4;
+      --btn-light-bg: #425746;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: var(--body-bg-color);
+      color: var(--title-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 0 20px;
+    }
+
+    .container {
+      text-align: center;
+      background-color: var(--card-bg-color);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      max-width: 400px;
+      width: 100%;
+    }
+    .logo{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+    .logo span{
+        font-size: x-large;
+        color:var(--text-white)
+    }
+    .logo img {
+      width: 40px;
+      height: 40px;
+    }
+
+    h1 {
+      color: var(--text-white);
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 10px 0 20px;
+      font-size: 16px;
+      color: var(--title-color);
+    }
+
+    .button {
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--btn-light-bg);
+      color: var(--text-white);
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: var(--title-color);
+    }
+
+    .footer a {
+      color: var(--btn-light-bg);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .retry-message {
+      color: var(--text-white);
+      background-color: var(--border-color);
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="./assets/ekilie_logo.jpeg" alt="ekiliSense Logo" class="logo">
+      <span>ekiliSense</span>
+    </div>
+    <h1>No Internet Connection</h1>
+    <p>You are currently offline. Please check your connection and try again.</p>
+    
+    <div class="button">
+      <button onclick="retryConnection()">Retry</button>
+    </div>
+
+    <div class="retry-message" id="retryMessage" style="display: none;">
+      Trying to reconnect...
+    </div>
+
+    <div class="footer">
+      Play a game while waiting <a href="game.html">Play</a>
+    </div>
+  </div>
+
+  <script>
+    function retryConnection() {
+      var message = document.getElementById('retryMessage');
+      message.style.display = 'block';
+      
+
+      setTimeout(function() {
+        
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          alert('Still offline. Please check your connection.');
+        }
+        message.style.display = 'none';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

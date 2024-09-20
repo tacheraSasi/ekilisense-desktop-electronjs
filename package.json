@@ -1,0 +1,49 @@
+{
+  "name": "ekilisense-desktop",
+  "version": "1.0.0",
+  "description": "A desktop application for ekiliSense with notifications and offline support.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "author": "Tachera Sasi <tacherasasi@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^32.1.1",
+    "electron-builder": "^25.0.5"
+  },
+  "dependencies": {
+    "is-online": "^11.0.0"
+  },
+  "build": {
+    "appId": "com.ekilie.ekilisense",
+    "productName": "ekiliSense",
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "offline.html"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "tar.gz"
+      ],
+      "icon": "assets/ekilie_logo.png",
+      "category": "Office",
+      "maintainer": "ekilie <support@ekilie.com>"
+    },
+    "extraMetadata": {
+      "homepage": "https://sense.ekilie.com" 
+    }
+  }
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/ekilie_logo.jpeg" type="image/x-icon">
+    <title>ekiliSense Offline</title>
+    <style>
+        :root {
+            --body-bg-color: #0c0d0e;
+            --card-bg-color: #151718;
+            --border-color: #313437;
+            --title-color: #818a84;
+            --text-white: #fff;
+            --btn-bg: #2d3b30;
+            --btn-text: #e0ece4;
+            --btn-light-bg: #425746;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--body-bg-color);
+            color: var(--title-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        canvas {
+            border: 1px solid var(--border-color);
+            background-color: #1c1c1c;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: var(--btn-light-bg);
+            color: var(--text-white);
+        }
+
+        .score {
+            font-size: 24px;
+            color: var(--text-white);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body onload="startGame()">
+    <canvas id="gameCanvas"></canvas>
+    <div class="score" id="scoreDisplay">SCORE: 0</div>
+    <div class="instructions">
+        Use the button below or the SPACEBAR to ACCELERATE and stay in the air. How long can you stay alive?
+    </div>
+    <div class="button">
+        <button onmousedown="accelerate(-0.2)" onmouseup="accelerate(0.05)">ACCELERATE</button>
+        <button onclick="restartGame()" id="restartButton" style="display: none;">RESTART</button>
+    </div>
+
+    <script>
+        var myGamePiece;
+        var myObstacles = [];
+        var myScore;
+        var scoreDisplay = document.getElementById('scoreDisplay');
+        var restartButton = document.getElementById('restartButton');
+
+        function startGame() {
+            myGamePiece = new component(30, 30, "red", 10, 120);
+            myGamePiece.gravity = 0.05;
+            myGameArea.start();
+            window.addEventListener('keydown', function(e) {
+                if (e.code === 'Space') {
+                    accelerate(-0.2);
+                }
+            });
+            window.addEventListener('keyup', function(e) {
+                if (e.code === 'Space') {
+                    accelerate(0.05);
+                }
+            });
+            restartButton.style.display = 'none'; // Hiding the restart button initially
+        }
+
+        var myGameArea = {
+            canvas: document.getElementById("gameCanvas"),
+            start: function() {
+                this.canvas.width = 480;
+                this.canvas.height = 270;
+                this.context = this.canvas.getContext("2d");
+                this.frameNo = 0;
+                this.interval = setInterval(updateGameArea, 20);
+            },
+            clear: function() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+        }
+
+        function component(width, height, color, x, y) {
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+            this.gravity = 0;
+            this.gravitySpeed = 0;
+
+            this.update = function() {
+                var ctx = myGameArea.context;
+                ctx.fillStyle = color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            this.newPos = function() {
+                this.gravitySpeed += this.gravity;
+                this.y += this.gravitySpeed;
+                this.hitBottom();
+            }
+
+            this.hitBottom = function() {
+                var rockbottom = myGameArea.canvas.height - this.height;
+                if (this.y > rockbottom) {
+                    this.y = rockbottom;
+                    this.gravitySpeed = 0;
+                }
+            }
+
+            this.crashWith = function(otherobj) {
+                var myleft = this.x;
+                var myright = this.x + this.width;
+                var mytop = this.y;
+                var mybottom = this.y + this.height;
+                var otherleft = otherobj.x;
+                var otherright = otherobj.x + otherobj.width;
+                var othertop = otherobj.y;
+                var otherbottom = otherobj.y + otherobj.height;
+                return !(mybottom < othertop || mytop > otherbottom || myright < otherleft || myleft > otherright);
+            }
+        }
+
+        function updateGameArea() {
+            for (var i = 0; i < myObstacles.length; i++) {
+                if (myGamePiece.crashWith(myObstacles[i])) {
+                    alert('Game Over! Your score: ' + myGameArea.frameNo);
+                    clearInterval(myGameArea.interval);
+                    restartButton.style.display = 'inline-block'; // Show the restart button
+                    return;
+                }
+            }
+            myGameArea.clear();
+            myGameArea.frameNo += 1;
+
+            if (myGameArea.frameNo == 1 || everyinterval(150)) {
+                var x = myGameArea.canvas.width;
+                var minHeight = 20;
+                var maxHeight = 200;
+                var height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+                var gap = Math.floor(Math.random() * (200 - 50 + 1) + 50);
+                myObstacles.push(new component(10, height, "green", x, 0));
+                myObstacles.push(new component(10, myGameArea.canvas.height - height - gap, "green", x, height + gap));
+            }
+
+            for (var i = 0; i < myObstacles.length; i++) {
+                myObstacles[i].x += -1;
+                myObstacles[i].update();
+            }
+
+            myScore = myGameArea.frameNo;
+            scoreDisplay.innerText = "SCORE: " + myScore;
+            myGamePiece.newPos();
+            myGamePiece.update();
+        }
+
+        function everyinterval(n) {
+            return (myGameArea.frameNo / n) % 1 === 0;
+        }
+
+        function accelerate(n) {
+            myGamePiece.gravity = n;
+        }
+
+        function restartGame() {
+            myObstacles = [];
+            myGameArea.frameNo = 0;
+            myGamePiece.y = 120; // Reseting position
+            myGamePiece.gravitySpeed = 0; // Reseting gravity speed
+            restartButton.style.display = 'none'; // Hiding the restart button
+            startGame(); // Restarting the game
+        }
+    </script>
+</body>
+</html>
