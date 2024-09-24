@@ -5,13 +5,14 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build-win": "electron-builder --win"
   },
   "keywords": [],
   "author": "Tachera Sasi <tacherasasi@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^32.1.1",
+    "electron": "^32.1.2",
     "electron-builder": "^25.0.5"
   },
   "dependencies": {
@@ -30,7 +31,8 @@
       "target": [
         "nsis",
         "zip"
-      ]
+      ],
+      "sign": false
     },
     "linux": {
       "target": [
@@ -43,7 +45,7 @@
       "maintainer": "ekilie <support@ekilie.com>"
     },
     "extraMetadata": {
-      "homepage": "https://sense.ekilie.com" 
+      "homepage": "https://sense.ekilie.com"
     }
   }
 }

@@ -15,6 +15,7 @@
             --btn-bg: #2d3b30;
             --btn-text: #e0ece4;
             --btn-light-bg: #425746;
+            --red:red
         }
 
         body {
@@ -70,8 +71,8 @@
         Use the button below or the SPACEBAR to ACCELERATE and stay in the air. How long can you stay alive?
     </div>
     <div class="button">
-        <button onmousedown="accelerate(-0.2)" onmouseup="accelerate(0.05)">ACCELERATE</button>
-        <button onclick="restartGame()" id="restartButton" style="display: none;">RESTART</button>
+        <button onmousedown="accelerate(-0.2)" onmouseup="accelerate(0.05) " id="accelerate">🚀 ACCELERATE</button>
+        <button onclick="restartGame()" id="restartButton" style="display: none;">🌝 RESTART</button>
     </div>
 
     <script>
@@ -82,7 +83,7 @@
         var restartButton = document.getElementById('restartButton');
 
         function startGame() {
-            myGamePiece = new component(30, 30, "red", 10, 120);
+            myGamePiece = new component(30, 30, "#95331e", 10, 120);
             myGamePiece.gravity = 0.05;
             myGameArea.start();
             window.addEventListener('keydown', function(e) {
@@ -158,6 +159,7 @@
                 if (myGamePiece.crashWith(myObstacles[i])) {
                     alert('Game Over! Your score: ' + myGameArea.frameNo);
                     clearInterval(myGameArea.interval);
+                    document.getElementById("accelerate").style.display = "none"
                     restartButton.style.display = 'inline-block'; // Show the restart button
                     return;
                 }
@@ -171,8 +173,8 @@
                 var maxHeight = 200;
                 var height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
                 var gap = Math.floor(Math.random() * (200 - 50 + 1) + 50);
-                myObstacles.push(new component(10, height, "green", x, 0));
-                myObstacles.push(new component(10, myGameArea.canvas.height - height - gap, "green", x, height + gap));
+                myObstacles.push(new component(10, height, "#3a4b3e", x, 0));
+                myObstacles.push(new component(10, myGameArea.canvas.height - height - gap, "#495d4d", x, height + gap));
             }
 
             for (var i = 0; i < myObstacles.length; i++) {

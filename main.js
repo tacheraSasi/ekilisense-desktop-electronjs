@@ -14,7 +14,8 @@ async function createWindow() {
       sandbox: false, // Disabling sandboxing
     },
     icon: path.join(__dirname, 'assets/ekilie_logo.png'),  
-    frame: true  // Using system window frame for native window controls
+    frame: true , // Using system window frame for native window controls
+    menu:null,
   });
 
   // Dynamically importing `is-online` module
@@ -41,6 +42,7 @@ function scheduleMorningNotification() {
   }
 
   const timeUntilMorning = morningTime - now;
+  // console(timeUntilMorning)
 
   // Schedule notification after the calculated time
   setTimeout(() => {
