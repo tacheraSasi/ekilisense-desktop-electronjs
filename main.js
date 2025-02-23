@@ -1,10 +1,11 @@
-const { app, BrowserWindow, Tray, Menu, Notification, dialog } = require('electron');
+// main.js
+const { app, BrowserWindow, Tray, Menu, Notification, dialog, ipcMain } = require('electron');
 const path = require('path');
 const packageJson = require('./package.json');
 
 const ASSETS_PATH = path.join(__dirname, 'assets');
 const ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
-const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
+const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_tray.png');
 
 let tray = null;
 let mainWindow;
@@ -14,7 +15,19 @@ function createApplicationMenu() {
     {
       label: 'File',
       submenu: [
-        { role: 'quit', label: 'Exit' }
+        { label: 'Sync Data', accelerator: 'CmdOrCtrl+S', click: () => mainWindow.webContents.send('sync-data') },
+        { type: 'separator' },
+        { role: 'quit', label: 'Exit', accelerator: 'CmdOrCtrl+Q' }
+      ]
+    },
+    {
+      label: 'School',
+      submenu: [
+        { label: 'New Student', accelerator: 'CmdOrCtrl+N', click: () => mainWindow.webContents.send('new-student') },
+        { label: 'Attendance', click: () => mainWindow.webContents.send('show-attendance') },
+        { label: 'Gradebook', click: () => mainWindow.webContents.send('show-gradebook') },
+        { type: 'separator' },
+        { label: 'Generate Reports', click: () => mainWindow.webContents.send('generate-reports') }
       ]
     },
     {
@@ -29,54 +42,77 @@ function createApplicationMenu() {
     {
       label: 'Help',
       submenu: [
-        {
-          label: 'About',
-          click: () => showAboutDialog()
-        }
+        { label: 'Documentation', click: () => mainWindow.loadURL('https://docs.ekilisense.com') },
+        { type: 'separator' },
+        { label: 'About ekiliSense', click: () => showAboutDialog() }
       ]
     }
   ];
-  
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 function showAboutDialog() {
   dialog.showMessageBox({
     title: 'About ekiliSense',
-    message: 'ekiliSense - Your Wellness Companion',
-    detail: `Version ${packageJson.version}\nCopyright © ${new Date().getFullYear()} Ekilie Technologies`,
+    message: 'AI-Powered School Management Platform',
+    detail: `Version ${packageJson.version}\n` +
+            `© ${new Date().getFullYear()} Ekilie Technologies\n` +
+            'Dar es Salaam, Tanzania\n' +
+            'Phone: +255 686 477 074\n' +
+            'Email: support@ekilie.com',
     icon: ICON_PATH
   });
 }
 
 async function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
+    width: 1400,
+    height: 900,
+    minWidth: 1024,
+    minHeight: 768,
     icon: ICON_PATH,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true
+      sandbox: true,
+      webSecurity: true
     },
-    show: false
+    show: false,
+    title: 'ekiliSense School Manager'
   });
 
-  mainWindow.on('ready-to-show', () => mainWindow.show());
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show();
+    checkConnection();
+  });
+
+  setupWindowListeners();
+  setupIPC();
 
   try {
-    const { default: isOnline } = await import('is-online');
-    const online = await isOnline();
-    
-    await mainWindow.loadURL(online ? 'https://init.ekilie.com' : 'offline.html');
+    await loadMainContent();
   } catch (error) {
-    console.error('Failed to load content:', error);
-    await mainWindow.loadFile('offline.html');
+    handleLoadError(error);
   }
 
+  return mainWindow;
+}
+
+async function loadMainContent() {
+  const { default: isOnline } = await import('is-online');
+  const online = await isOnline();
+  await mainWindow.loadURL(online ? 'https://app.ekilisense.com' : 'offline.html');
+}
+
+function handleLoadError(error) {
+  console.error('Failed to load content:', error);
+  dialog.showErrorBox('Connection Error', 'Failed to connect to ekiliSense services');
+  mainWindow.loadFile('offline.html');
+}
+
+function setupWindowListeners() {
   mainWindow.on('close', (event) => {
     if (process.platform === 'darwin') {
       event.preventDefault();
@@ -84,13 +120,23 @@ async function createMainWindow() {
     }
   });
 
-  return mainWindow;
+  mainWindow.on('focus', () => updateTrayContextMenu());
+}
+
+function setupIPC() {
+  ipcMain.handle('get-app-info', () => ({
+    version: packageJson.version,
+    platform: process.platform
+  }));
+
+  ipcMain.on('show-notification', (_, { title, body }) => {
+    new Notification({ title, body, icon: ICON_PATH }).show();
+  });
 }
 
 function createTray() {
   tray = new Tray(TRAY_ICON_PATH);
-  tray.setToolTip('ekiliSense');
-
+  tray.setToolTip('ekiliSense School Manager');
   tray.on('double-click', () => toggleWindowVisibility());
   updateTrayContextMenu();
 }
@@ -102,15 +148,12 @@ function updateTrayContextMenu() {
       click: () => toggleWindowVisibility()
     },
     { type: 'separator' },
-    {
-      label: 'About ekiliSense',
-      click: () => showAboutDialog()
-    },
+    { label: 'Attendance Overview', click: () => mainWindow.webContents.send('show-attendance') },
+    { label: 'Recent Grades', click: () => mainWindow.webContents.send('show-grades') },
     { type: 'separator' },
-    {
-      label: 'Quit',
-      click: () => app.quit()
-    }
+    { label: 'About ekiliSense', click: () => showAboutDialog() },
+    { type: 'separator' },
+    { label: 'Quit', click: () => app.quit() }
   ]);
 
   tray.setContextMenu(contextMenu);
@@ -127,24 +170,34 @@ function toggleWindowVisibility() {
 }
 
 function scheduleNotifications() {
-  const scheduleNextNotification = () => {
+  const scheduleDailyReport = () => {
     const now = Date.now();
-    const nextMorning = new Date();
-    nextMorning.setHours(8, 0, 0, 0);
-    if (now > nextMorning) nextMorning.setDate(nextMorning.getDate() + 1);
+    const nextReportTime = new Date();
+    nextReportTime.setHours(16, 0, 0, 0); // 4:00 PM local time
+    
+    if (now > nextReportTime) {
+      nextReportTime.setDate(nextReportTime.getDate() + 1);
+    }
 
-    const timeout = nextMorning - now;
+    const timeout = nextReportTime - now;
+    
     setTimeout(() => {
       new Notification({
-        title: 'Good Morning!',
-        body: 'Start your day with ekiliSense.',
+        title: 'Daily School Report Ready',
+        body: 'Attendance and grade summaries are available',
         icon: ICON_PATH
       }).show();
-      scheduleNextNotification();
+      scheduleDailyReport();
     }, timeout);
   };
 
-  scheduleNextNotification();
+  scheduleDailyReport();
+}
+
+async function checkConnection() {
+  const { default: isOnline } = await import('is-online');
+  const online = await isOnline();
+  mainWindow.webContents.send('connection-status', online);
 }
 
 app.enableSandbox();
