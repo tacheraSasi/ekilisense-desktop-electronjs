@@ -1,6 +1,6 @@
 {
   "name": "ekilisense",
-  "version": "2.0",
+  "version": "2.0.0",
   "description": "A desktop application for ekiliSense  ",
   "main": "src/main.js",
   "scripts": {
@@ -29,11 +29,14 @@
     "appId": "com.ekilie.ekilisense",
     "productName": "ekiliSense",
     "files": [
-      "main.js",
-      "preload.js",
+      "src/**/*",
       "assets/**/*",
-      "offline.html"
+      "offline.html",
+      "package.json"
     ],
+    "directories": {
+      "buildResources": "assets"
+    },
     "win": {
       "target": [
         "nsis",
