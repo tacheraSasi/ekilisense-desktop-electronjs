@@ -102,7 +102,7 @@ async function createMainWindow() {
 async function loadMainContent() {
   const { default: isOnline } = await import('is-online');
   const online = await isOnline();
-  await mainWindow.loadURL(online ? 'https://init.ekilisense.com' : 'offline.html');
+  await mainWindow.loadURL(online ? 'https://init.ekilie.com' : 'offline.html');
 }
 
 function handleLoadError(error) {
