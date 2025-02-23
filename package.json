@@ -1,14 +1,15 @@
 {
   "name": "ekilisense",
-  "version": "1.0.0",
+  "version": "2.0",
   "description": "A desktop application for ekiliSense  ",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "build-win": "electron-builder --win"
+    "build-win": "electron-builder --win",
+    "build-linux": "electron-builder --linux"
   },
-  "keywords": [],
+  "keywords": ["ekilisense", "ekilie", "ekili"],
   "author": "Tachera Sasi <tachera@ekilie.com>",
   "license": "ISC",
   "devDependencies": {
