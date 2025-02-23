@@ -1,5 +1,5 @@
 {
-  "name": "ekilisense-desktop",
+  "name": "ekilisense",
   "version": "1.0.0",
   "description": "A desktop application for ekiliSense  ",
   "main": "main.js",
@@ -9,13 +9,14 @@
     "build-win": "electron-builder --win"
   },
   "keywords": [],
-  "author": "Tachera Sasi <tacherasasi@gmail.com>",
+  "author": "Tachera Sasi <tachera@ekilie.com>",
   "license": "ISC",
   "devDependencies": {
     "electron": "^32.1.2",
     "electron-builder": "^25.0.5"
   },
   "dependencies": {
+    "ekilirelay": "^1.0.4",
     "is-online": "^11.0.0"
   },
   "build": {
@@ -36,7 +37,6 @@
     },
     "linux": {
       "target": [
-        "AppImage",
         "deb",
         "tar.gz"
       ],

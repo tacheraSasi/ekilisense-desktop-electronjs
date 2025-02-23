@@ -4,7 +4,7 @@ const packageJson = require('./package.json');
 
 const ASSETS_PATH = path.join(__dirname, 'assets');
 const ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
-const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_tray.png');
+const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
 
 let tray = null;
 let mainWindow;
