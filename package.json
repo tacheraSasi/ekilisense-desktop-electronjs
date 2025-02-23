@@ -2,7 +2,7 @@
   "name": "ekilisense",
   "version": "2.0",
   "description": "A desktop application for ekiliSense  ",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
