@@ -2,7 +2,7 @@ const { app, BrowserWindow, Tray, Menu, Notification, dialog, ipcMain } = requir
 const path = require('path');
 const packageJson = require('../package.json');
 
-const ASSETS_PATH = path.join(__dirname, 'assets');
+const ASSETS_PATH = path.join(__dirname, '../assets');
 const ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
 const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_tray.png');
 
@@ -42,6 +42,10 @@ function createApplicationMenu() {
       label: 'Help',
       submenu: [
         { label: 'Documentation', click: () => mainWindow.loadURL('https://sense.ekilie.com') },
+        {
+          label: 'Report Bug',
+          click: () => bugReporter.sendBugReport(mainWindow)
+        },
         { type: 'separator' },
         { label: 'About ekiliSense', click: () => showAboutDialog() }
       ]
@@ -56,20 +60,20 @@ function showAboutDialog() {
     title: 'About ekiliSense',
     message: 'AI-Powered School Management Software',
     detail: `Version ${packageJson.version}\n` +
-            `© ${new Date().getFullYear()} ekilie Technologies\n` +
-            'Dar es Salaam, Tanzania\n' +
-            'Phone: +255 686 477 074\n' +
-            'Email: support@ekilie.com',
+      `© ${new Date().getFullYear()} ekilie Technologies\n` +
+      'Dar es Salaam, Tanzania\n' +
+      'Phone: +255 686 477 074\n' +
+      'Email: support@ekilie.com',
     icon: ICON_PATH
   });
 }
 
 async function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1024,
-    minHeight: 768,
+    width: 1000,
+    height: 600,
+    minWidth: 800,
+    minHeight: 400,
     icon: ICON_PATH,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -134,21 +138,45 @@ function setupIPC() {
 }
 
 function createTray() {
-  tray = new Tray(TRAY_ICON_PATH);
+  try {
+    tray = new Tray(TRAY_ICON_PATH);
+  } catch (error) {
+    console.error('Tray icon error:', error);
+    try {
+      // Fallback to main icon
+      tray = new Tray(ICON_PATH);
+    } catch (fallbackError) {
+      console.error('Fallback tray icon failed:', fallbackError);
+      return;
+    }
+  }
+
+  if (!tray) return;
+
   tray.setToolTip('ekiliSense');
   tray.on('double-click', () => toggleWindowVisibility());
   updateTrayContextMenu();
 }
 
 function updateTrayContextMenu() {
+  if (!tray) return;
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: mainWindow?.isVisible() ? 'Hide App' : 'Show App',
       click: () => toggleWindowVisibility()
     },
     { type: 'separator' },
-    { label: 'Attendance Overview', click: () => mainWindow.webContents.send('show-attendance') },
-    { label: 'Recent Grades', click: () => mainWindow.webContents.send('show-grades') },
+    { 
+      label: 'Attendance Overview', 
+      click: () => mainWindow?.webContents?.send('show-attendance'),
+      enabled: !!mainWindow
+    },
+    { 
+      label: 'Recent Grades', 
+      click: () => mainWindow?.webContents?.send('show-grades'),
+      enabled: !!mainWindow
+    },
     { type: 'separator' },
     { label: 'About ekiliSense', click: () => showAboutDialog() },
     { type: 'separator' },
@@ -159,6 +187,8 @@ function updateTrayContextMenu() {
 }
 
 function toggleWindowVisibility() {
+  if (!mainWindow) return;
+
   if (mainWindow.isVisible()) {
     mainWindow.hide();
   } else {
@@ -168,18 +198,19 @@ function toggleWindowVisibility() {
   updateTrayContextMenu();
 }
 
+
 function scheduleNotifications() {
   const scheduleDailyReport = () => {
     const now = Date.now();
     const nextReportTime = new Date();
-    nextReportTime.setHours(16, 0, 0, 0); 
-    
+    nextReportTime.setHours(16, 0, 0, 0);
+
     if (now > nextReportTime) {
       nextReportTime.setDate(nextReportTime.getDate() + 1);
     }
 
     const timeout = nextReportTime - now;
-    
+
     setTimeout(() => {
       new Notification({
         title: 'Daily School Report Ready',
