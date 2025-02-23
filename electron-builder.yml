@@ -1,0 +1,19 @@
+appId: com.ekilie.ekilisense
+productName: ekiliSense
+directories:
+  output: dist
+  buildResources: assets
+
+files:
+  - "src/**/*"
+  - "assets/**/*"
+  - "offline.html"
+  - "package.json"
+
+linux:
+  target:
+    - deb
+    - tar.gz
+  icon: assets/ekilie_logo.png
+  category: Office
+  maintainer: ekilie <support@ekilie.com>
