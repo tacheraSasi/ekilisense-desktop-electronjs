@@ -17,7 +17,7 @@
     "electron-builder": "^25.0.5"
   },
   "dependencies": {
-    "ekilirelay": "^1.0.4",
+    "dotenv": "^16.4.7",
     "is-online": "^11.0.0"
   },
   "build": {

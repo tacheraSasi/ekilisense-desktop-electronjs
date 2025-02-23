@@ -1,6 +1,10 @@
 const { app, BrowserWindow, Tray, Menu, Notification, dialog, ipcMain } = require('electron');
 const path = require('path');
 const packageJson = require('../package.json');
+const BugReporter = require('./bugReporter');
+require("dotenv").config();
+
+const bugReporter = new BugReporter(process.env.EKILIRELAY_API_KEY);
 
 const ASSETS_PATH = path.join(__dirname, '../assets');
 const ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
