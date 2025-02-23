@@ -4,54 +4,74 @@ const { sender } = require('./emailSender');
 
 class BugReporter {
   constructor(apiKey) {
+    if (!apiKey) throw new Error('Missing API key for bug reporting');
     this.apiKey = apiKey;
     this.defaultRecipient = 'support@ekilie.com';
   }
 
   async sendBugReport(mainWindow) {
     try {
-      const { response, checkboxChecked } = await dialog.showMessageBox(mainWindow, {
+      // Confirm report submission
+      const { response } = await dialog.showMessageBox(mainWindow, {
         type: 'question',
         buttons: ['Send Report', 'Cancel'],
-        title: 'Report Bug',
-        message: 'Submit bug report to ekiliSense support?',
-        detail: 'Would you like to include your contact information?',
-        checkboxLabel: 'Include my email address'
+        title: 'Submit Bug Report',
+        message: 'Send anonymous bug report to ekiliSense support?',
+        detail: 'Technical details about your system will be included to help diagnose the issue.'
       });
 
       if (response !== 0) return;
 
+      // Get bug description
       const { value: description } = await dialog.showMessageBox({
         type: 'input',
         title: 'Bug Description',
-        message: 'Please describe the issue:',
-        buttons: ['Submit', 'Cancel']
+        message: 'Please describe the issue you encountered:',
+        buttons: ['Submit Report', 'Cancel'],
+        normalizeAccessKeys: true
       });
 
-      if (!description) return;
+      if (!description || description.trim().length < 10) {
+        dialog.showMessageBox({
+          type: 'warning',
+          title: 'Invalid Input',
+          message: 'Please provide a description of at least 10 characters.'
+        });
+        return;
+      }
 
+      // Prepare report content
       const systemInfo = this.getSystemInfo();
-      const userEmail = checkboxChecked ? `${os.userInfo().username}@ekilie.com` : 'anonymous';
-      
+      const emailContent = `
+        === Bug Report ===
+        ${description.trim()}
+        
+        === System Information ===
+        ${systemInfo}
+      `;
+
+      // Send report
       await sender(
         this.defaultRecipient,
-        `Bug Report from ${userEmail}`,
-        `Bug Report:\n${description}\n\nSystem Info:\n${systemInfo}`,
-        `From: ${userEmail}`,
+        'Anonymous Bug Report - ekiliSense Desktop',
+        emailContent,
+        '', // Empty headers
         this.apiKey
       );
 
+      // Success feedback
       dialog.showMessageBox({
         type: 'info',
-        title: 'Bug Report Status',
-        message: 'Thank you for your report!'
+        title: 'Report Submitted',
+        message: 'Thank you for helping improve ekiliSense!',
+        detail: 'Your anonymous report has been successfully submitted.'
       });
 
     } catch (error) {
       dialog.showMessageBox({
         type: 'error',
-        title: 'Error',
-        message: 'Failed to send bug report',
+        title: 'Submission Failed',
+        message: 'Could not send bug report',
         detail: error.message
       });
     }
@@ -59,12 +79,13 @@ class BugReporter {
 
   getSystemInfo() {
     return [
-      `Platform: ${os.platform()}`,
-      `Arch: ${os.arch()}`,
+      `Platform: ${os.platform()} ${os.arch()}`,
       `OS Version: ${os.version()}`,
-      `Electron Version: ${process.versions.electron}`,
-      `Chrome Version: ${process.versions.chrome}`,
-      `Memory: ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)}GB Total`
+      `Electron: ${process.versions.electron}`,
+      `Chrome: ${process.versions.chrome}`,
+      `Memory: ${(os.totalmem() / 1024 ** 3).toFixed(1)}GB Total`,
+      `CPU Cores: ${os.cpus().length}`,
+      `Uptime: ${Math.floor(os.uptime() / 60)} minutes`
     ].join('\n');
   }
 }
