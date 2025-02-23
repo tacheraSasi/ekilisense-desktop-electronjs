@@ -9,7 +9,11 @@
     "build-win": "electron-builder --win",
     "build-linux": "electron-builder --linux"
   },
-  "keywords": ["ekilisense", "ekilie", "ekili"],
+  "keywords": [
+    "ekilisense",
+    "ekilie",
+    "ekili"
+  ],
   "author": "Tachera Sasi <tachera@ekilie.com>",
   "license": "ISC",
   "devDependencies": {
@@ -18,7 +22,8 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "is-online": "^11.0.0"
+    "is-online": "^11.0.0",
+    "node-fetch": "^2.6.7"
   },
   "build": {
     "appId": "com.ekilie.ekilisense",
