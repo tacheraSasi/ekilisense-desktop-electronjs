@@ -1,7 +1,7 @@
 {
   "name": "ekilisense-desktop",
   "version": "1.0.0",
-  "description": "A desktop application for ekiliSense with notifications and offline support.",
+  "description": "A desktop application for ekiliSense  ",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
