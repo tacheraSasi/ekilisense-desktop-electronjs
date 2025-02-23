@@ -4,7 +4,6 @@ const path = require('path');
 let tray = null;
 let mainWindow;
 
-// Function to create the main window
 async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 992,
