@@ -1,87 +1,167 @@
-const { app, BrowserWindow, Tray, Menu, Notification } = require('electron');
+const { app, BrowserWindow, Tray, Menu, Notification, dialog } = require('electron');
 const path = require('path');
+const packageJson = require('./package.json');
+
+const ASSETS_PATH = path.join(__dirname, 'assets');
+const ICON_PATH = path.join(ASSETS_PATH, 'ekilie_logo.png');
+const TRAY_ICON_PATH = path.join(ASSETS_PATH, 'ekilie_tray.png');
 
 let tray = null;
 let mainWindow;
 
-async function createWindow() {
+function createApplicationMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit', label: 'Exit' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { type: 'separator' },
+        { role: 'toggleDevTools', visible: process.env.NODE_ENV === 'development' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About',
+          click: () => showAboutDialog()
+        }
+      ]
+    }
+  ];
+  
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+function showAboutDialog() {
+  dialog.showMessageBox({
+    title: 'About ekiliSense',
+    message: 'ekiliSense - Your Wellness Companion',
+    detail: `Version ${packageJson.version}\nCopyright © ${new Date().getFullYear()} Ekilie Technologies`,
+    icon: ICON_PATH
+  });
+}
+
+async function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 992,
-    height: 600,
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
+    icon: ICON_PATH,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      sandbox: false, // Disabling sandboxing
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true
     },
-    icon: path.join(__dirname, 'assets/ekilie_logo.png'),  
-    frame: true , // Using system window frame for native window controls
-    menu:null,
+    show: false
   });
 
-  // Dynamically importing `is-online` module
-  const isOnline = (await import('is-online')).default;
+  mainWindow.on('ready-to-show', () => mainWindow.show());
 
-  // Checking internet connectivity and load appropriate page
-  const online = await isOnline();
-  if (online) {
-    mainWindow.loadURL('https://init.ekilie.com');  
-  } else {
-    mainWindow.loadFile('offline.html');  
-  }
-}
-
-// Schedule notification
-function scheduleMorningNotification() {
-  const now = new Date();
-  const morningTime = new Date();
-  morningTime.setHours(8, 0, 0, 0);  // Schedule for 8:00 AM
-
-  // Calculate time until 8 AM tomorrow if it's already past 8 AM today
-  if (now > morningTime) {
-    morningTime.setDate(morningTime.getDate() + 1);
+  try {
+    const { default: isOnline } = await import('is-online');
+    const online = await isOnline();
+    
+    await mainWindow.loadURL(online ? 'https://init.ekilie.com' : 'offline.html');
+  } catch (error) {
+    console.error('Failed to load content:', error);
+    await mainWindow.loadFile('offline.html');
   }
 
-  const timeUntilMorning = morningTime - now;
-  // console(timeUntilMorning)
+  mainWindow.on('close', (event) => {
+    if (process.platform === 'darwin') {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+  });
 
-  // Schedule notification after the calculated time
-  setTimeout(() => {
-    new Notification({
-      title: 'Good Morning!',
-      body: 'Start your day with ekiliSense.'
-    }).show();
-
-    // Schedule again for tomorrow
-    scheduleMorningNotification();
-  }, timeUntilMorning);
+  return mainWindow;
 }
 
-// Create tray icon for system tray integration
 function createTray() {
-  tray = new Tray(path.join(__dirname, 'assets/ekilie_logo.jpeg'));  
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show App', click: () => { mainWindow.show(); } },
-    { label: 'Quit', click: () => { app.quit(); } }
-  ]);
+  tray = new Tray(TRAY_ICON_PATH);
   tray.setToolTip('ekiliSense');
+
+  tray.on('double-click', () => toggleWindowVisibility());
+  updateTrayContextMenu();
+}
+
+function updateTrayContextMenu() {
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: mainWindow?.isVisible() ? 'Hide App' : 'Show App',
+      click: () => toggleWindowVisibility()
+    },
+    { type: 'separator' },
+    {
+      label: 'About ekiliSense',
+      click: () => showAboutDialog()
+    },
+    { type: 'separator' },
+    {
+      label: 'Quit',
+      click: () => app.quit()
+    }
+  ]);
+
   tray.setContextMenu(contextMenu);
 }
 
-// App initialization
-app.whenReady().then(() => {
-  createWindow();
+function toggleWindowVisibility() {
+  if (mainWindow.isVisible()) {
+    mainWindow.hide();
+  } else {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+  updateTrayContextMenu();
+}
+
+function scheduleNotifications() {
+  const scheduleNextNotification = () => {
+    const now = Date.now();
+    const nextMorning = new Date();
+    nextMorning.setHours(8, 0, 0, 0);
+    if (now > nextMorning) nextMorning.setDate(nextMorning.getDate() + 1);
+
+    const timeout = nextMorning - now;
+    setTimeout(() => {
+      new Notification({
+        title: 'Good Morning!',
+        body: 'Start your day with ekiliSense.',
+        icon: ICON_PATH
+      }).show();
+      scheduleNextNotification();
+    }, timeout);
+  };
+
+  scheduleNextNotification();
+}
+
+app.enableSandbox();
+app.setName('ekiliSense');
+
+app.whenReady().then(async () => {
+  createApplicationMenu();
+  await createMainWindow();
   createTray();
-  scheduleMorningNotification();
+  scheduleNotifications();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    if (!mainWindow) createMainWindow();
+    else if (!mainWindow.isVisible()) mainWindow.show();
   });
 });
 
-// Quit app when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
