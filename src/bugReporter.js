@@ -22,20 +22,22 @@ class BugReporter {
 
       if (response !== 0) return;
 
-      // Get bug description
-      const { value: description } = await dialog.showMessageBox({
+      // Get bug description with INPUT dialog
+      const { response: descResponse, value: description } = await dialog.showMessageBox({
         type: 'input',
         title: 'Bug Description',
         message: 'Please describe the issue you encountered:',
         buttons: ['Submit Report', 'Cancel'],
-        normalizeAccessKeys: true
+        cancelId: 1,
+        defaultId: 0
       });
 
-      if (!description || description.trim().length < 10) {
+      if (descResponse !== 0 || !description || description.trim().length < 10) {
         dialog.showMessageBox({
           type: 'warning',
           title: 'Invalid Input',
-          message: 'Please provide a description of at least 10 characters.'
+          message: 'Please provide a description of at least 10 characters.',
+          buttons: ['OK']
         });
         return;
       }
@@ -55,7 +57,7 @@ class BugReporter {
         this.defaultRecipient,
         'Anonymous Bug Report - ekiliSense Desktop',
         emailContent,
-        '', // Empty headers
+        '',
         this.apiKey
       );
 
@@ -64,7 +66,8 @@ class BugReporter {
         type: 'info',
         title: 'Report Submitted',
         message: 'Thank you for helping improve ekiliSense!',
-        detail: 'Your anonymous report has been successfully submitted.'
+        detail: 'Your anonymous report has been successfully submitted.',
+        buttons: ['OK']
       });
 
     } catch (error) {
@@ -72,7 +75,8 @@ class BugReporter {
         type: 'error',
         title: 'Submission Failed',
         message: 'Could not send bug report',
-        detail: error.message
+        detail: error.message,
+        buttons: ['OK']
       });
     }
   }
