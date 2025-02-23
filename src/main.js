@@ -18,19 +18,9 @@ function createApplicationMenu() {
     {
       label: 'File',
       submenu: [
-        { label: 'Sync Data', accelerator: 'CmdOrCtrl+S', click: () => mainWindow.webContents.send('sync-data') },
+        { label: 'Home', accelerator: 'CmdOrCtrl+S', click: () => mainWindow.loadURL('https://init.ekilie.com') },
         { type: 'separator' },
         { role: 'quit', label: 'Exit', accelerator: 'CmdOrCtrl+Q' }
-      ]
-    },
-    {
-      label: 'School',
-      submenu: [
-        { label: 'New Student', accelerator: 'CmdOrCtrl+N', click: () => mainWindow.webContents.send('new-student') },
-        { label: 'Attendance', click: () => mainWindow.webContents.send('show-attendance') },
-        { label: 'Gradebook', click: () => mainWindow.webContents.send('show-gradebook') },
-        { type: 'separator' },
-        { label: 'Generate Reports', click: () => mainWindow.webContents.send('generate-reports') }
       ]
     },
     {
@@ -45,13 +35,19 @@ function createApplicationMenu() {
     {
       label: 'Help',
       submenu: [
-        { label: 'Documentation', click: () => mainWindow.loadURL('https://sense.ekilie.com') },
+        { label: 'Documentation', click: () => mainWindow.loadURL('https://sense.ekilie.com#about') },
         {
           label: 'Report Bug',
           click: () => bugReporter.sendBugReport(mainWindow)
         },
         { type: 'separator' },
         { label: 'About ekiliSense', click: () => showAboutDialog() }
+      ]
+    },
+    {
+      label:"About",
+      submenu:[
+        {label:"Terms and policies", click: () => mainWindow.loadURL('https://sense.ekilie.com/terms-and-policies')}
       ]
     }
   ];
@@ -71,6 +67,7 @@ function showAboutDialog() {
     icon: ICON_PATH
   });
 }
+
 
 async function createMainWindow() {
   mainWindow = new BrowserWindow({
