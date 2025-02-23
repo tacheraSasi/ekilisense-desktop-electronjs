@@ -1,10 +1,11 @@
+// bugReporter.js
 const { dialog } = require('electron');
-const EkiliRelay = require('ekilirelay');
 const os = require('os');
+const { sender } = require('./emailSender'); // Import your custom sender
 
 class BugReporter {
   constructor(apiKey) {
-    this.mailer = new EkiliRelay(apiKey);
+    this.apiKey = apiKey;
     this.defaultRecipient = 'support@ekilie.com';
   }
 
@@ -40,19 +41,18 @@ class BugReporter {
         `;
 
         try {
-          const response = await this.mailer.sendEmail(
+          await sender(
             this.defaultRecipient,
             `Bug Report from ${userEmail}`,
             emailContent,
-            `From: ${userEmail}`
+            `From: ${userEmail}`,
+            this.apiKey
           );
 
           dialog.showMessageBox({
-            type: response.status === 'success' ? 'info' : 'error',
+            type: 'info',
             title: 'Bug Report Status',
-            message: response.status === 'success' 
-              ? 'Thank you for your report!'
-              : 'Failed to send bug report'
+            message: 'Thank you for your report!'
           });
         } catch (error) {
           dialog.showMessageBox({
