@@ -1,4 +1,3 @@
-// main.js
 const { app, BrowserWindow, Tray, Menu, Notification, dialog, ipcMain } = require('electron');
 const path = require('path');
 const packageJson = require('./package.json');
@@ -42,7 +41,7 @@ function createApplicationMenu() {
     {
       label: 'Help',
       submenu: [
-        { label: 'Documentation', click: () => mainWindow.loadURL('https://docs.ekilisense.com') },
+        { label: 'Documentation', click: () => mainWindow.loadURL('https://sense.ekilie.com') },
         { type: 'separator' },
         { label: 'About ekiliSense', click: () => showAboutDialog() }
       ]
@@ -55,9 +54,9 @@ function createApplicationMenu() {
 function showAboutDialog() {
   dialog.showMessageBox({
     title: 'About ekiliSense',
-    message: 'AI-Powered School Management Platform',
+    message: 'AI-Powered School Management Software',
     detail: `Version ${packageJson.version}\n` +
-            `© ${new Date().getFullYear()} Ekilie Technologies\n` +
+            `© ${new Date().getFullYear()} ekilie Technologies\n` +
             'Dar es Salaam, Tanzania\n' +
             'Phone: +255 686 477 074\n' +
             'Email: support@ekilie.com',
@@ -80,7 +79,7 @@ async function createMainWindow() {
       webSecurity: true
     },
     show: false,
-    title: 'ekiliSense School Manager'
+    title: 'ekiliSense'
   });
 
   mainWindow.on('ready-to-show', () => {
@@ -103,7 +102,7 @@ async function createMainWindow() {
 async function loadMainContent() {
   const { default: isOnline } = await import('is-online');
   const online = await isOnline();
-  await mainWindow.loadURL(online ? 'https://app.ekilisense.com' : 'offline.html');
+  await mainWindow.loadURL(online ? 'https://init.ekilisense.com' : 'offline.html');
 }
 
 function handleLoadError(error) {
@@ -136,7 +135,7 @@ function setupIPC() {
 
 function createTray() {
   tray = new Tray(TRAY_ICON_PATH);
-  tray.setToolTip('ekiliSense School Manager');
+  tray.setToolTip('ekiliSense');
   tray.on('double-click', () => toggleWindowVisibility());
   updateTrayContextMenu();
 }
@@ -173,7 +172,7 @@ function scheduleNotifications() {
   const scheduleDailyReport = () => {
     const now = Date.now();
     const nextReportTime = new Date();
-    nextReportTime.setHours(16, 0, 0, 0); // 4:00 PM local time
+    nextReportTime.setHours(16, 0, 0, 0); 
     
     if (now > nextReportTime) {
       nextReportTime.setDate(nextReportTime.getDate() + 1);
