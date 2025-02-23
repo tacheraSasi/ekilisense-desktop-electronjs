@@ -22,7 +22,7 @@ class BugReporter {
 
       if (response !== 0) return;
 
-      // Prepare system information
+      // system information
       const systemInfo = this.getSystemInfo();
       const emailContent = `
         === System Information ===
@@ -34,7 +34,7 @@ class BugReporter {
         this.defaultRecipient,
         'System Report - ekiliSense Desktop',
         emailContent,
-        '',
+        'ekiliSense Desktop Bug Report <tachera@ekilie.com>',
         this.apiKey
       );
 
@@ -48,6 +48,7 @@ class BugReporter {
       });
 
     } catch (error) {
+        console.log(error);
       dialog.showMessageBox({
         type: 'error',
         title: 'Submission Failed',
