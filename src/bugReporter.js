@@ -15,39 +15,16 @@ class BugReporter {
       const { response } = await dialog.showMessageBox(mainWindow, {
         type: 'question',
         buttons: ['Send Report', 'Cancel'],
-        title: 'Submit Bug Report',
-        message: 'Send anonymous bug report to ekiliSense support?',
-        detail: 'Technical details about your system will be included to help diagnose the issue.'
+        title: 'Submit System Report',
+        message: 'Send anonymous system report to ekiliSense support?',
+        detail: 'Technical details about your system will be included to help diagnose potential issues.'
       });
 
       if (response !== 0) return;
 
-      // Get bug description with INPUT dialog
-      const { response: descResponse, value: description } = await dialog.showMessageBox({
-        type: 'input',
-        title: 'Bug Description',
-        message: 'Please describe the issue you encountered:',
-        buttons: ['Submit Report', 'Cancel'],
-        cancelId: 1,
-        defaultId: 0
-      });
-
-      if (descResponse !== 0 || !description || description.trim().length < 10) {
-        dialog.showMessageBox({
-          type: 'warning',
-          title: 'Invalid Input',
-          message: 'Please provide a description of at least 10 characters.',
-          buttons: ['OK']
-        });
-        return;
-      }
-
-      // Prepare report content
+      // Prepare system information
       const systemInfo = this.getSystemInfo();
       const emailContent = `
-        === Bug Report ===
-        ${description.trim()}
-        
         === System Information ===
         ${systemInfo}
       `;
@@ -55,7 +32,7 @@ class BugReporter {
       // Send report
       await sender(
         this.defaultRecipient,
-        'Anonymous Bug Report - ekiliSense Desktop',
+        'System Report - ekiliSense Desktop',
         emailContent,
         '',
         this.apiKey
@@ -65,8 +42,8 @@ class BugReporter {
       dialog.showMessageBox({
         type: 'info',
         title: 'Report Submitted',
-        message: 'Thank you for helping improve ekiliSense!',
-        detail: 'Your anonymous report has been successfully submitted.',
+        message: 'Thank you for your contribution!',
+        detail: 'Your system report has been successfully submitted.',
         buttons: ['OK']
       });
 
@@ -74,7 +51,7 @@ class BugReporter {
       dialog.showMessageBox({
         type: 'error',
         title: 'Submission Failed',
-        message: 'Could not send bug report',
+        message: 'Could not send system report',
         detail: error.message,
         buttons: ['OK']
       });
