@@ -33,6 +33,15 @@ function createApplicationMenu() {
       ]
     },
     {
+      label: 'Quick Links',
+      submenu: [
+        { label: 'Admin Console', click: () => mainWindow.loadURL('https://sense.ekilie.com/console?from=desktop') },
+        { label: 'Teacher Console', click: () => mainWindow.loadURL('https://auth.ekilie.com/sense/teacher?from=desktop') },
+        { type: 'separator' },
+        { label: 'About ekiliSense', click: () => showAboutDialog() }
+      ]
+    },
+    {
       label: 'Help',
       submenu: [
         { label: 'Documentation', click: () => mainWindow.loadURL('https://sense.ekilie.com#about') },
