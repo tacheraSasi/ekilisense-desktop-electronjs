@@ -18,13 +18,13 @@ function sender(to, subject, message, headers = "", apikey = "") {
     },
     body: JSON.stringify(payload),
   })
-  .then(async (response) => {
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-    return data;
-  });
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+      return data;
+    });
 }
 
 module.exports = { sender };
