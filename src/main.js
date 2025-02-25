@@ -19,6 +19,7 @@ function createApplicationMenu() {
       label: 'File',
       submenu: [
         { label: 'Home', accelerator: 'CmdOrCtrl+S', click: () => mainWindow.loadURL('https://init.ekilie.com') },
+        { label: 'Game', accelerator: 'CmdOrCtrl+G', click: () => mainWindow.loadFile('game.html') },
         { type: 'separator' },
         { role: 'quit', label: 'Exit', accelerator: 'CmdOrCtrl+Q' }
       ]
