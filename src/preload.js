@@ -5,11 +5,3 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getSecureConfig: () => ipcRenderer.invoke('get-secure-config'),
 });
 
-
- 
- 
- 
- 
- 
- 
-}
