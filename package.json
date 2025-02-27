@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
+    "electron-updater": "^6.3.9",
     "is-online": "^11.0.0",
     "node-fetch": "^2.6.7"
   },
