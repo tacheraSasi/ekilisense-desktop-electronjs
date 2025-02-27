@@ -139,28 +139,7 @@ async function createMainWindow() {
     mainWindow.show();
     checkConnection();
   });
-
-  mainWindow.webContents.on("dom-ready", () => {
-    mainWindow.webContents.insertCSS(`
-      .loading-spinner {
-        display: none !important;
-      }
-    `);
-  });
-
-  // Preloading critical assets
-  const preconnectDomains = [
-    "https://auth.ekilie.com",
-    "https://sense.ekilie.com",
-  ];
-
-  preconnectDomains.forEach((domain) => {
-    mainWindow.webContents.session.preconnect({
-      origin: domain,
-      numSockets: 2,
-    });
-  });
-
+ 
   setupWindowListeners();
   setupIPC();
 
