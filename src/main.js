@@ -128,6 +128,8 @@ async function createMainWindow() {
       contextIsolation: true,
       sandbox: true,
       webSecurity: true,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
     },
     show: false,
     title: "ekiliSense",
