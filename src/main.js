@@ -198,12 +198,15 @@ function setupIPC() {
 
 function createTray() {
   try {
-    tray = new Tray(TRAY_ICON_PATH);
+    tray = new Tray(TRAY_ICON_PATH).resize(16, 16);
+    tray.setPressedImage(TRAY_ICON_PATH);
+    tray.setContextMenu(Menu.buildFromTemplate([]));
+    tray.setToolTip("ekiliSense");
   } catch (error) {
     console.error("Tray icon error:", error);
     try {
       // Fallback to main icon
-      tray = new Tray(ICON_PATH);
+      tray = new Tray(ICON_PATH).resize(16, 16);
     } catch (fallbackError) {
       console.error("Fallback tray icon failed:", fallbackError);
       return;
