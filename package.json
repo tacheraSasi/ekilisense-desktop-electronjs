@@ -20,12 +20,12 @@
   "author": "Tachera Sasi <tachera@ekilie.com>",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^32.3.2",
+    "electron": "^32.3.3",
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "electron-updater": "^6.3.9",
+    "dotenv": "^16.5.0",
+    "electron-updater": "^6.6.2",
     "is-online": "^11.0.0",
     "node-fetch": "^2.7.0"
   },
