@@ -21,6 +21,13 @@ const TRAY_ICON_PATH = path.join(ASSETS_PATH, "ekilie_logo.png");
 let tray = null;
 let mainWindow;
 
+app.setName("ekiliSense");
+app.setAppUserModelId("com.ekilie.sense");
+app.setPath("userData", path.join(app.getPath("userData"), "ekiliSense"));
+app.setPath("temp", path.join(app.getPath("temp"), "ekiliSense"));
+app.setPath("logs", path.join(app.getPath("logs"), "ekiliSense"));
+app.setPath("cache", path.join(app.getPath("cache"), "ekiliSense"));
+
 function createApplicationMenu() {
   const template = [
     {
